@@ -1,112 +1,97 @@
-# TECHIN 510 Final Project
----
+# NSCA: Neuro-Symbolic Cognitive Architecture Demo System
 
-## Overview
+## Project Description
 
-The final project simulates a professional client-developer relationship. You will:
+NSCA is a biologically-inspired cognitive architecture that achieves **sample-efficient machine learning** by combining innate perceptual priors with learned representations. Inspired by how humans develop understanding through structured prior knowledge and curiosity-driven exploration, NSCA integrates five layers: a physics-grounded world model, semantic property extraction, causal reasoning, intrinsic motivation, and sensorimotor-grounded language understanding.
 
-1. **Propose your own project** — define the problem, write the spec, create a revenue model, review all code, and accept (or reject) deliverables. You never write code on your own project.
-2. **Develop someone else's project** — architect the system, implement it using agentic engineering (AI-first development), write tests, and deliver a working product.
+This repository contains the implementation and interactive demo for the NSCA system, developed as the TECHIN 510 Final Project.
 
-All collaborations happen through GitHub — Issues, Pull Requests, and code review. 
----
-
-## Why This Model?
-
-**For Proposers (Client role):** A key part of software development is defining what to build, evaluating whether it was built correctly, and giving feedback that improves the product. These are the skills of a product manager, a startup founder, or anyone who hires engineers.
-
-**For Developers (Engineer role):** Real engineering means building to someone else's spec, not your own vision. You must interpret requirements, negotiate scope, communicate progress, and respond to feedback — all while using AI tools effectively.
+**Key result:** Physics priors improve sample efficiency by **+7.2%** at 20 samples compared to baseline approaches.
 
 ---
 
-## The Two Roles
+## Team
 
-### Role 1: Proposer (Client / Product Owner)
-
-You are the client. You define what gets built and evaluate whether it meets your standards.
-
-**Your responsibilities:**
-- Write a Project Pitch with a revenue model
-- Create a detailed `SPEC.md` with user stories and acceptance criteria
-- Decompose the spec into GitHub Issues with testable acceptance criteria
-- Set up branch protection on your project repo (main requires 1 review)
-- Review every Pull Request your developer submits
-- File bug reports with reproduction steps and screenshots
-- Conduct acceptance testing at each gate
-- Present the problem, revenue model, and development story at Demo Day
-
-**You never write implementation code on your own project.**
-
-### Role 2: Developer (AI-First Freelance Engineer)
-
-You are the engineer. You build someone else's vision using agentic engineering.
-
-**Your responsibilities:**
-- Browse project pitches and express interest
-- Write an `ARCHITECTURE.md` with C4 diagram, data model, tech stack justification, and agentic engineering plan
-- Set up `CLAUDE.md` and `.cursorrules` for effective AI-assisted development
-- Implement features via Pull Requests, each referencing a GitHub Issue
-- Use agentic engineering (Cursor, Claude Code) for all development
-- Write automated tests and conduct security review
-- Respond to all PR review comments and bug reports
-- Present architecture and agentic engineering approach at Demo Day
-
-**Your skill is not writing code by hand — it is orchestrating AI to produce quality code, then verifying the output.**
+| Role | Name |
+|------|------|
+| Proposer (Client) | Zhuxirui |
+| Developer | Wei Chang |
 
 ---
 
-## GIX Bucks Economy
+## Architecture Overview
 
-Every project operates in a simulated economy that teaches budget management, scope-cost tradeoffs, and market validation.
-
-**See [`gix-bucks.md`](./gix-bucks.md) for full rules and worked examples.**
-
-Quick summary:
-- Every student starts with **100 GIX Bucks**
-- Proposers pay developers a **negotiated development fee**
-- At Demo Day, all students distribute their remaining bucks and those earned as developers as **investments** in projects they believe are viable
-- **Net Profit = Investment Received - Development Fee Paid**
-- Positive net profit is normalized to **bonus points**
+```
+Layer 4 — Language Integration        (Bidirectional sensorimotor-language grounding)
+Layer 3 — Motivation System           (Curiosity, competence, continual learning via EWC)
+Layer 2 — Causal Reasoning            (Causal graphs, intuitive physics, counterfactuals)
+Layer 1 — Semantic Properties         (Slot attention, affordances, object categories)
+Layer 0 — World Model                 (Multi-modal encoders, dynamics prediction, physics priors)
+```
 
 ---
 
-## Marketplace Matching
+## Features
 
-If you are not hired by any client, or you cannot find a developer, let your instructor and TA know.
+- Adaptive physics priors with learnable correction networks
+- Dynamic property discovery via slot attention
+- Learnability-filtered curiosity (noisy-TV defense)
+- Elastic Weight Consolidation (EWC) for continual learning
+- Multi-modal encoders: vision, audio, proprioception with cross-modal fusion
+- Interactive web demo for exploring NSCA behavior
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/GIX-Luyao/final-project-codebase-zhuxirui677-1.git
+cd final-project-codebase-zhuxirui677-1
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Run the Demo
+
+```bash
+streamlit run app.py
+```
+
+### Run Training
+
+```bash
+python train.py --config configs/default.yaml
+```
+
+### Run Diagnostics
+
+```bash
+python diagnostics/run_all.py
+```
+
+---
+
+## Development Timeline
+
+| Milestone | Due Date | Description |
+|-----------|----------|-------------|
+| **Checkpoint 1** | Week 4 (May 5, 2026) | Initial architecture PR: repo structure, module stubs, environment setup. All layers stubbed and importable. |
+| **Checkpoint 2** | Week 7 (May 26, 2026) | Core implementation complete: Layers 0–3 functional. Pre-training diagnostics passing. Sample efficiency benchmark running. |
+| **Checkpoint 3** | Week 9 (Jun 9, 2026) | Full system integration: Layer 4 language grounding, interactive web demo operational, documentation complete. |
+| **Final Demo Day** | Week 11 (Jun 23, 2026) | Accepted deliverable: all acceptance criteria met, live demo presented. |
 
 ---
 
 ## Tech Stack
 
-The tech stack is **negotiated between proposer and developer**. Some examples are given below:
-
-| Option | When to use |
-|--------|------------|
-| **Next.js + Supabase** | Multi-user apps, apps needing auth, database-heavy projects |
-| **Python + Streamlit** | Data-focused apps, single-user tools, rapid prototyping |
-| **Custom (pre-approved)** | Other stacks require written instructor approval by end of Week 3 |
-
-The proposer states their stack preference in the pitch. The developer may counter-propose with justification. The final choice is recorded in the `ARCHITECTURE.md`.
+- **ML Framework:** PyTorch 2.0+
+- **Physics Simulation:** MuJoCo
+- **Demo Interface:** Streamlit / Gradio
+- **Language:** Python 3.9+
+- **Optional:** LLM API integration
 
 ---
 
-## Conflict Resolution
+## License
 
-### Contract Terms
-
-The `SPEC.md` + agreed GIX Bucks fee constitute the project contract. Both parties should commit to:
-
-- **Proposer:** Review PRs within 48 hours. Provide specific, actionable feedback. Respond to developer questions within 48 hours.
-- **Developer:** Submit at least one PR per 2-week period. Respond to review comments within 48 hours. Keep the proposer informed of blockers.
-
-### Escalation Process
-
-1. If either party is unresponsive or breaches the contract, the other creates a GitHub Issue tagged `escalation` in the project repo.
-2. Instructor reviews the GitHub audit trail (PR timestamps, Issue activity, review comments) within 1 week.
-3. Instructor mediates and documents the outcome.
-
-### Grade Impact
-
-- **Communication & Professionalism** are graded. Ghosting, persistent non-responsiveness may result in point deduction. 
-
----
+MIT
