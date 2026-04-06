@@ -14,8 +14,8 @@ Modern deep learning models require massive amounts of labeled data to perform w
 
 ## Developer
 
-- **Name:** Wei Chang
-- **Agreed Development Fee:** TBD GIX Bucks
+- **Name:** Elina Zhao
+- **Agreed Development Fee:** 30$ GIX Bucks
 
 ---
 
