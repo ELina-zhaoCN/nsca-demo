@@ -15,7 +15,7 @@ This repository contains the implementation and interactive demo for the NSCA sy
 | Role | Name |
 |------|------|
 | Proposer (Client) | Zhuxirui |
-| Developer | Wei Chang |
+| Developer | Elina Zhao |
 
 ---
 
