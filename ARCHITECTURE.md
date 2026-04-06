@@ -184,8 +184,9 @@ Rather than writing implementation code by hand, the development workflow is:
 ### 6.2 Tools
 | Tool | Role |
 |------|------|
-| **Cursor + Claude** | Primary code generation and refactoring |
+| **Cursor + Claude** | Primary code generation and refactoring (local development) |
 | **Claude Code** | Long-context architecture reasoning and multi-file edits |
+| **Google Colab (GPU)** | Model training and ablation experiments — local machine (Mac) has no GPU; Colab provides free T4/A100 access for PyTorch training runs |
 | **pytest** | Automated test generation and validation |
 | **Streamlit** | Rapid UI prototyping with AI-assisted layout |
 
@@ -211,6 +212,6 @@ Rather than writing implementation code by hand, the development workflow is:
 
 2. **Modular toggle design:** Every major module (physics priors, EWC, LLM) is wrapped in a config flag so the client can perform ablation studies via the UI without touching source code.
 
-3. **Scaled-down training for demo:** Full Meta-World training requires ~$200 GPU budget. The demo will use a pre-trained checkpoint for live inference, with a small-scale training run (N=20) available locally to reproduce the +7.2% benchmark.
+3. **Google Colab for training:** Local development machine is a Mac without a discrete GPU. All model training and ablation experiments will be run on Google Colab (T4/A100). The demo will use pre-trained checkpoints for live inference; a small-scale training run (N=20) is available in Colab to reproduce the +7.2% benchmark.
 
 4. **Existing codebase reuse:** A reference implementation of NSCA already exists. New development will adapt and clean this into the spec-compliant structure, using AI tooling to refactor and modularize.
