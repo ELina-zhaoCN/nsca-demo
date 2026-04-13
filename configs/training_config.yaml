@@ -1,0 +1,323 @@
+# Training configuration for the Unified World Model v2.0
+# Target: A100 40GB GPU
+# Estimated training time: ~150-180 hours total
+
+# Reproducibility
+seed: 42
+
+# Model configuration
+model:
+  latent_dim: 512
+  state_dim: 256
+  action_dim: 32
+  use_enhanced_fusion: true  # Enable hierarchical fusion
+  
+  vision:
+    input_height: 224
+    input_width: 224
+    input_channels: 3
+    latent_dim: 512
+    num_gabor_orientations: 8
+    num_gabor_scales: 4
+    gabor_kernel_size: 15
+    use_spatial_prior: true
+    use_color_prior: true
+    use_gabor_prior: true
+    use_depth_prior: true
+    
+  audio:
+    sample_rate: 16000
+    n_mels: 80
+    n_fft: 400
+    hop_length: 160
+    latent_dim: 256
+    output_dim: 512
+    use_onset_prior: true
+    
+  proprio:
+    input_dim: 12
+    hidden_dim: 128
+    output_dim: 512
+    num_layers: 3
+    dropout: 0.1
+    
+  fusion:
+    dim: 512
+    num_heads: 8
+    num_layers: 4
+    dropout: 0.1
+    # Enhanced fusion settings (v2.0)
+    fusion_type: "hierarchical"  # early, mid, late, hierarchical
+    use_contrastive: true
+    contrastive_temperature: 0.07
+    contrastive_dim: 256
+    use_temporal_sync: true
+    max_temporal_length: 100
+    use_cross_modal_prediction: true
+    early_weight: 0.3
+    mid_weight: 0.4
+    late_weight: 0.3
+    
+  temporal:
+    dim: 512
+    num_heads: 8
+    num_layers: 6
+    max_seq_len: 64
+    state_dim: 256
+    dropout: 0.1
+    use_causal: true
+    
+  dynamics:
+    state_dim: 256
+    action_dim: 32
+    hidden_dim: 512
+    num_layers: 3
+    dropout: 0.1
+    use_residual: true
+    predict_uncertainty: true
+
+# Training phases
+training:
+  # Phase 1: Vision encoder (contrastive learning)
+  vision:
+    epochs: 100
+    batch_size: 256
+    learning_rate: 0.0003
+    weight_decay: 0.01
+    warmup_epochs: 10
+    temperature: 0.5
+    augmentation:
+      random_resized_crop: 224
+      horizontal_flip: true
+      color_jitter: [0.4, 0.4, 0.4, 0.1]
+      random_grayscale: 0.2
+  
+  # Phase 2: Audio encoder (contrastive learning)
+  audio:
+    epochs: 50
+    batch_size: 128
+    learning_rate: 0.0001
+    weight_decay: 0.01
+    warmup_epochs: 5
+    max_audio_length: 16000  # 1 second at 16kHz (matches SpeechCommands)
+    augmentation:
+      time_stretch: [0.8, 1.2]
+      pitch_shift: [-2, 2]
+      add_noise: 0.1
+  
+  # Phase 3: Cross-modal fusion
+  fusion:
+    epochs: 50
+    batch_size: 64
+    learning_rate: 0.0001
+    weight_decay: 0.01
+    warmup_epochs: 5
+    freeze_encoders: true
+  
+  # Phase 4: Temporal model + Dynamics
+  temporal:
+    epochs: 100
+    batch_size: 32
+    learning_rate: 0.0001
+    weight_decay: 0.01
+    warmup_epochs: 10
+    sequence_length: 16
+    prediction_horizon: 4
+    
+  # General training settings
+  general:
+    gradient_accumulation_steps: 4
+    mixed_precision: true
+    gradient_clip: 1.0
+    save_every_n_epochs: 10
+    eval_every_n_epochs: 5
+    log_every_n_steps: 100
+    num_workers: 0  # HuggingFace datasets不支持多进程fork，必须为0
+    pin_memory: true
+
+# Data configuration
+data:
+  # HuggingFace datasets
+  vision_dataset: "imagenet-1k"
+  vision_dataset_subset: null  # Use full dataset
+  
+  audio_dataset: "mozilla-foundation/common_voice_11_0"
+  audio_dataset_lang: "en"
+  
+  video_dataset: "HuggingFaceM4/webvid"
+  video_dataset_subset: "10M"  # Use 10M subset
+  
+  # Alternative smaller datasets for testing
+  small_vision_dataset: "cifar100"
+  small_audio_dataset: "speech_commands"
+  small_video_dataset: "HuggingFaceM4/something_something_v2"
+  
+  # Paths
+  cache_dir: "./data/huggingface_cache"
+  checkpoint_dir: "./checkpoints"
+  log_dir: "./logs"
+
+# Loss weights
+loss:
+  # Contrastive loss weights
+  contrastive_weight: 1.0
+  
+  # VICReg regularization
+  variance_weight: 25.0
+  invariance_weight: 25.0
+  covariance_weight: 1.0
+  
+  # Dynamics prediction
+  prediction_weight: 1.0
+  uncertainty_weight: 0.1
+  
+  # Cross-modal alignment
+  alignment_weight: 1.0
+
+# Optimizer
+optimizer:
+  name: "adamw"
+  betas: [0.9, 0.999]
+  eps: 1.0e-8
+
+# Learning rate scheduler
+scheduler:
+  name: "cosine"
+  min_lr: 1.0e-6
+  warmup_type: "linear"
+
+# Logging
+logging:
+  use_wandb: false  # 禁用wandb，避免需要API Key
+  wandb_project: "nsca-world-model"
+  wandb_entity: null  # Your wandb username
+  log_images: true
+  log_attention: true
+
+# Checkpointing
+checkpoint:
+  save_best: true
+  save_last: true
+  metric: "loss"
+  mode: "min"
+
+# Enhanced Augmentation (v2.0)
+augmentation:
+  enabled: true
+  probability: 0.5
+  physics_aware: true  # Disable gravity-inconsistent transforms for physics tasks
+  synchronized: true   # Same random seed across modalities for temporal alignment
+  
+  vision:
+    # RandAugment settings
+    rand_augment:
+      n: 2  # Number of augmentations to apply
+      m: 9  # Magnitude (0-10)
+    
+    # MixUp/CutMix
+    mixup_alpha: 0.2
+    cutmix_alpha: 1.0
+    mix_prob: 0.5
+    
+    # Temporal augmentation
+    temporal_dropout: 0.1
+    speed_range: [0.8, 1.2]
+    
+    # Basic augmentations
+    horizontal_flip_p: 0.5
+    brightness_range: [0.8, 1.2]
+    contrast_range: [0.8, 1.2]
+    crop_scale: [0.85, 1.0]
+    
+    # Color jitter
+    color_jitter_p: 0.8
+    color_jitter_brightness: 0.4
+    color_jitter_contrast: 0.4
+    color_jitter_saturation: 0.4
+    color_jitter_hue: 0.1
+    
+    # Grayscale
+    grayscale_p: 0.2
+  
+  audio:
+    sample_rate: 16000
+    
+    # SpecAugment
+    spec_augment:
+      freq_mask: 27  # Maximum frequency mask width
+      time_mask: 100  # Maximum time mask width
+      num_freq_masks: 2
+      num_time_masks: 2
+    
+    # Pitch shifting (semitones)
+    pitch_shift: [-4, 4]
+    
+    # Room reverb
+    reverb_prob: 0.3
+    room_scale_range: [0.3, 0.8]
+    
+    # Background noise
+    background_prob: 0.3
+    snr_range: [10, 30]  # dB
+    
+    # Time stretch
+    time_stretch: [0.8, 1.2]
+    
+    # Basic augmentations
+    volume_range: [0.8, 1.2]
+    noise_std: 0.005
+    time_shift_samples: 1000
+  
+  proprio:
+    # Sensor noise
+    noise_std: 0.01
+    noise_type: "gaussian"  # gaussian, uniform, laplace
+    
+    # Joint dropout
+    joint_dropout: 0.1
+    min_joints_kept: 6
+    
+    # Temporal jitter
+    temporal_jitter_ms: 10
+    sample_rate: 100  # Hz
+    
+    # Coordinate perturbation
+    position_noise: 0.005  # meters
+    velocity_noise: 0.01   # m/s
+    acceleration_noise: 0.02  # m/s^2
+    orientation_noise: 0.01   # radians
+    
+    # Scaling
+    scale_range: [0.95, 1.05]
+    
+    # Drift simulation
+    drift_prob: 0.1
+    drift_magnitude: 0.02
+
+# Cross-modal settings (v2.0)
+cross_modal:
+  # Fusion type
+  fusion_type: "hierarchical"  # early, mid, late, hierarchical
+  
+  # Contrastive alignment
+  contrastive_weight: 0.3
+  temperature: 0.07
+  
+  # Cross-modal prediction
+  prediction_weight: 0.25
+  
+  # Physics prior
+  physics_weight: 0.2
+  
+  # Reconstruction
+  reconstruction_weight: 0.15
+  
+  # Classification
+  classification_weight: 0.1
+
+# HuggingFace Integration (v2.0)
+huggingface:
+  repo_id: "omartabius/NSCA"
+  auto_upload: true
+  upload_frequency: "best"  # best, epoch, checkpoint
+  update_model_card: true
