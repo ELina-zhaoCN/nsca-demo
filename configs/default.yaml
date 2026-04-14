@@ -1,0 +1,18 @@
+# NSCA demo + training wrapper (SPEC / ARCHITECTURE).
+# Issue #1: default entry; Issue #6: demo paths.
+#
+# Training: `python train.py --config configs/default.yaml` resolves to `training_config`.
+# Demo: Streamlit reads `demo` and `modules` (see app.py).
+
+training_config: configs/training_config_local.yaml
+
+demo:
+  checkpoint_dir: checkpoints
+  cognitive_agent_checkpoint: checkpoints/cognitive_agent_full.pth
+  world_model_checkpoint: checkpoints/world_model_final.pth
+
+modules:
+  use_physics_priors: true
+  use_ewc: true
+  ewc_lambda: 0.4
+  use_llm: false

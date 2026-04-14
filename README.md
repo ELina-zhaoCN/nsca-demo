@@ -51,11 +51,30 @@ python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### Issue #2 / Week 4 (Checkpoint 1) acceptance (import smoke test)
+
+The ``layers/`` package **re-exports** the implementation under ``src/`` so the
+import path matches the issue text. If you need **strict empty stubs** for
+submission, copies are kept under ``layers/_archive_week4_empty_stubs/`` (see
+that folder’s ``README.md``).
+
+Run from the repository root (same directory as `layers/` and `src/`):
+
+```bash
+python -c "from layers import world_model, semantic, causal, motivation, language"
+```
+
+This should print nothing and exit with code 0.
+
+If `pip install -r requirements.txt` fails on **MuJoCo**, check [MuJoCo install](https://mujoco.readthedocs.io/en/stable/python.html#install-mujoco) for your OS; you can temporarily comment out the `mujoco` line for CPU-only demos that do not load physics envs.
+
 ### Run the Demo
 
 ```bash
 streamlit run app.py
 ```
+
+Or: `bash demo/run_demo.sh` (see `demo/README.md`).
 
 ### Run Training
 
@@ -68,6 +87,55 @@ python train.py --config configs/default.yaml
 ```bash
 python diagnostics/run_all.py
 ```
+
+### Verify installation
+
+```bash
+python verify_world_model.py
+```
+
+### Full stack training (after Layer 0)
+
+Uses weights from `checkpoints/world_model_final.pth` (see training repo / Drive).
+
+```bash
+python scripts/train_all_layers.py --world-model checkpoints/world_model_final.pth --config configs/training_config_local.yaml
+```
+
+### API reference
+
+Public modules are documented in [docs/API.md](docs/API.md).
+
+---
+
+## GitHub issues (from `SPEC.md`)
+
+| # | Issue | What was delivered |
+|---|--------|-------------------|
+| 1 | **[Setup]** Environment and repo structure | `requirements.txt`, `configs/`, `src/` package layout, `train.py`, `verify_world_model.py` |
+| 2 | **[Layer 0–1]** World model and semantics | `src/world_model/`, `src/encoders/`, `src/semantics/` |
+| 3 | **[Layer 2–3]** Causal reasoning and motivation | `src/reasoning/`, `src/motivation/`, `src/learning/ewc.py` |
+| 4 | **[Layer 4]** Language and optional LLM | `src/language/llm_integration.py` |
+| 5 | **[Eval]** Diagnostics and sample-efficiency harness | `diagnostics/run_all.py`, `scripts/*_test.py`, `src/evaluation/metaworld_eval.py` |
+| 6 | **[Demo]** Interactive web UI | `app.py` (Streamlit), `configs/default.yaml` demo section |
+
+---
+
+## Trained checkpoints (Google Drive)
+
+Weights from your Colab / GPU runs should be copied into `checkpoints/` (ignored by git). Expected names match the training pipeline in [ELina-zhaoCN/Neuro-Symbolic-Grounding-in-Low-Resource-Regimes](https://github.com/ELina-zhaoCN/Neuro-Symbolic-Grounding-in-Low-Resource-Regimes), for example:
+
+- `world_model_final.pth` — Layer 0 world model
+- `cognitive_agent_full.pth` — full five-layer agent (after `scripts/train_all_layers.py`)
+
+If the folder or file is shared on Google Drive (anyone with the link can view), you can pull it locally with:
+
+```bash
+pip install gdown
+python scripts/download_checkpoints.py --folder-id "<YOUR_DRIVE_FOLDER_ID>" -o checkpoints
+```
+
+Then point Streamlit to `checkpoints/cognitive_agent_full.pth` (default in `configs/default.yaml`) or set the path in the sidebar of `app.py`.
 
 ---
 
