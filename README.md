@@ -141,12 +141,39 @@ Then point Streamlit to `checkpoints/cognitive_agent_full.pth` (default in `conf
 
 ## Development Timeline
 
-| Milestone | Due Date | Description |
-|-----------|----------|-------------|
-| **Checkpoint 1** | Week 4 (May 5, 2026) | Initial architecture PR: repo structure, module stubs, environment setup. All layers stubbed and importable. |
-| **Checkpoint 2** | Week 7 (May 26, 2026) | Core implementation complete: Layers 0–3 functional. Pre-training diagnostics passing. Sample efficiency benchmark running. |
-| **Checkpoint 3** | Week 9 (Jun 9, 2026) | Full system integration: Layer 4 language grounding, interactive web demo operational, documentation complete. |
-| **Final Demo Day** | Week 11 (Jun 23, 2026) | Accepted deliverable: all acceptance criteria met, live demo presented. |
+| Milestone | Due Date | Status | Description |
+|-----------|----------|--------|-------------|
+| **Checkpoint 1** | Week 4 (May 5, 2026) | ✅ Complete | Initial architecture PR: repo structure, module stubs, environment setup. All layers stubbed and importable. |
+| **Checkpoint 2** | Week 7 (May 26, 2026) | ⚠️ At Risk | Core implementation complete: Layers 0–3 functional. Pre-training diagnostics passing. Sample efficiency benchmark running. **Blocker: integration tests have API mismatches with implementation and will fail if executed. See Issues #13, #14.** |
+| **Checkpoint 3** | Week 9 (Jun 9, 2026) | 🔲 Not Started | Full system integration: Layer 4 language grounding, interactive web demo operational, documentation complete. |
+| **Final Demo Day** | Week 11 (Jun 23, 2026) | 🔲 Not Started | Accepted deliverable: all acceptance criteria met, live demo presented. |
+
+### Mid-Point Check — May 4, 2026
+
+**Reviewer:** zhuxirui677 (Project Owner / Client)
+**Developer:** ELina Zhao (ELina-zhaoCN)
+**Date:** 2026-05-04
+
+#### Summary
+
+The developer has merged three PRs implementing Layers 0–3 and the evaluation diagnostics framework. The implementation code is detailed and well-structured; architecture quality is high.
+
+**Critical finding:** The integration tests added in PR #10 and PR #11 have pervasive API mismatches with the actual implementation — class names, constructor signatures, and method signatures differ throughout. If the test suite were run today, **all integration tests would fail**. This is a Checkpoint 2 blocker.
+
+#### Acceptance Criteria Status
+
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| Repo structure, module stubs, importable | ✅ Pass | `from layers import world_model, semantic, causal, motivation, language` works |
+| World model encodes multi-modal inputs | ✅ Impl. present | `VisionEncoderWithPriors`, `AudioEncoderWithPriors`, `ProprioEncoder` exist |
+| Slot attention discovers ≥2 object properties | ✅ Impl. present | `SlotAttention` and `DynamicPropertyBank` exist in `property_layer.py` |
+| Causal reasoning module runs without error | ✅ Impl. present | `CausalReasoner` exists in `causal_layer.py` |
+| Curiosity filter rejects noisy-TV signals | ✅ Impl. present | `RobustCuriosityReward` with learnability filter exists |
+| EWC reduces forgetting on sequential tasks | ✅ Impl. present | `ElasticWeightConsolidation` exists in `ewc.py` |
+| Integration tests pass | ❌ **FAIL** | API mismatch: test class names/signatures don't match implementation |
+| All 4 diagnostic tests pass | ⚠️ Untested | Scripts exist but cannot run without dependencies (no pip in env) |
+| Sample efficiency benchmark running | ⚠️ Untested | `metaworld_eval.py` present; full run requires MuJoCo |
+| Interactive demo launches | ⚠️ Untested | `app.py` exists; requires `streamlit` package |
 
 ---
 
