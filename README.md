@@ -2,9 +2,9 @@
 
 ## Live Demo
 
-**Public URL:** [https://final-project-nsca.streamlit.app](https://final-project-nsca.streamlit.app)
+**Public URL:** [https://final-project-codebase-zhuxirui677-1.onrender.com](https://final-project-codebase-zhuxirui677-1.onrender.com)
 
-> Deployed on [Streamlit Community Cloud](https://streamlit.io/cloud). Any push to `main` triggers an automatic redeployment.
+> Deployed on [Render](https://render.com). Any push to `main` triggers an automatic redeployment.
 
 ---
 
