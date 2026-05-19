@@ -46,6 +46,7 @@ class EvaluationConfig:
     
     # Statistical rigor
     num_seeds: int = 20  # Minimum required by reviewers
+    num_samples: int = 10
     confidence_level: float = 0.95
     
     # Training parameters

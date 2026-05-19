@@ -1,5 +1,13 @@
 # NSCA: Neuro-Symbolic Cognitive Architecture Demo System
 
+## Live Demo
+
+**Public URL:** [https://final-project-codebase-zhuxirui677-1.onrender.com](https://final-project-codebase-zhuxirui677-1.onrender.com)
+
+> Deployed on [Render](https://render.com). Any push to `main` triggers an automatic redeployment.
+
+---
+
 ## Project Description
 
 NSCA is a biologically-inspired cognitive architecture that achieves **sample-efficient machine learning** by combining innate perceptual priors with learned representations. Inspired by how humans develop understanding through structured prior knowledge and curiosity-driven exploration, NSCA integrates five layers: a physics-grounded world model, semantic property extraction, causal reasoning, intrinsic motivation, and sensorimotor-grounded language understanding.
@@ -230,6 +238,46 @@ Each module was manually inspected to confirm the core logic is sound:
 - **Demo Interface:** Streamlit / Gradio
 - **Language:** Python 3.9+
 - **Optional:** LLM API integration
+
+---
+
+## Deployment
+
+### Hosting
+
+The app is deployed on **Streamlit Community Cloud** (free tier).
+
+| Service | Purpose | Provider |
+|---------|---------|---------|
+| Web app (frontend + backend) | Streamlit demo | Streamlit Community Cloud |
+| Checkpoints (optional) | Model weights | Google Drive (download via `scripts/download_checkpoints.py`) |
+
+No persistent database is used — all state is in-memory or stored in local checkpoint files.
+
+### Automated Deployments
+
+Any commit merged into `main` triggers an automatic production build on Streamlit Cloud. The CI pipeline (`.github/workflows/ci.yml`) runs tests first; Streamlit Cloud redeploys only when the push lands on `main`.
+
+### Environment Variables
+
+Copy `.env.example` to `.env` for local development. For production, add secrets in the Streamlit Cloud dashboard (**App → Settings → Secrets**). See `.streamlit/secrets.toml.example` for the exact TOML format.
+
+| Variable | Required | Purpose |
+|----------|---------|---------|
+| `OPENAI_API_KEY` | Optional | Layer 4 LLM integration |
+| `WANDB_API_KEY` | Optional | Experiment tracking during training |
+| `GOOGLE_DRIVE_FOLDER_ID` | Optional | Download model checkpoints from Drive |
+
+### Deploy from Scratch
+
+1. Fork / push this repo to GitHub.
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**.
+3. Select repo, branch `main`, entry file `app.py`.
+4. Under **Advanced settings**, set **Python requirements file** to `requirements_deploy.txt`.
+5. Paste secrets from `.streamlit/secrets.toml.example` into the Secrets box.
+6. Click **Deploy**.
+
+The live URL will be something like `https://<your-app-name>.streamlit.app`.
 
 ---
 
