@@ -510,3 +510,23 @@ class IntrinsicRewardComputer(nn.Module):
         if self.use_robust_curiosity and hasattr(self.curiosity, 'get_curiosity_statistics'):
             return self.curiosity.get_curiosity_statistics()
         return {}
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — IntrinsicRewardModule(state_dim)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+import torch as _torch
+
+class IntrinsicRewardModule(_nn.Module):
+    def __init__(self, state_dim: int = 64):
+        super().__init__()
+        self.pred = _nn.Sequential(
+            _nn.Linear(state_dim, 64), _nn.ReLU(),
+            _nn.Linear(64, state_dim),
+        )
+
+    def forward(self, state, next_state):
+        pred = self.pred(state)
+        reward = ((next_state - pred) ** 2).mean(dim=-1)
+        return reward.abs()  # guarantee non-negative

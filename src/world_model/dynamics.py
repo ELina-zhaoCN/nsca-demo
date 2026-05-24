@@ -73,3 +73,24 @@ class DynamicsPredictor(nn.Module):
         x = self.fuse_proj(fused)
         x = self.blocks(x)
         return self.out_proj(x)
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — DynamicsPredictor(state_dim, action_dim, hidden_dim)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+import torch as _torch
+
+class _DynamicsPredictorCompat(_nn.Module):
+    def __init__(self, state_dim: int, action_dim: int, hidden_dim: int = 256):
+        super().__init__()
+        self.net = _nn.Sequential(
+            _nn.Linear(state_dim + action_dim, hidden_dim), _nn.ReLU(),
+            _nn.Linear(hidden_dim, state_dim),
+        )
+
+    def forward(self, state, action):
+        x = _torch.cat([state, action], dim=-1)
+        return self.net(x)
+
+DynamicsPredictor = _DynamicsPredictorCompat

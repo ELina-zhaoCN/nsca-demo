@@ -263,3 +263,18 @@ class AttentionAllocator(nn.Module):
         """Bias attention toward novelty (curiosity mode)."""
         self.attention_weights.data[2] += 0.1
         self.attention_weights.data[0] -= 0.05
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — MotivationAttention(dim, num_heads)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+
+class MotivationAttention(_nn.Module):
+    def __init__(self, dim: int = 64, num_heads: int = 4):
+        super().__init__()
+        self.attn = _nn.MultiheadAttention(dim, num_heads, batch_first=True)
+
+    def forward(self, x):
+        out, _ = self.attn(x, x, x)
+        return out

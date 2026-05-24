@@ -343,3 +343,22 @@ class VisionEncoderLite(nn.Module):
         
         # Encode
         return self.encoder(prior_features)
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — matches test API: VisionEncoder(embed_dim)
+# ---------------------------------------------------------------------------
+class VisionEncoder(nn.Module):
+    """Simple vision encoder compatible with integration test API."""
+    def __init__(self, embed_dim: int = 128):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(3, 32, 3, stride=2, padding=1), nn.ReLU(),
+            nn.Conv2d(32, 64, 3, stride=2, padding=1), nn.ReLU(),
+            nn.AdaptiveAvgPool2d(4),
+            nn.Flatten(),
+            nn.Linear(64 * 4 * 4, embed_dim),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)

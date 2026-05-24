@@ -361,3 +361,26 @@ class DriveSystem(nn.Module):
             1.0,
             self.drive_state.energy_level + amount
         )
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — DriveSystem(state_dim)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+import torch as _torch
+
+class _DriveSystemCompat(_nn.Module):
+    def __init__(self, state_dim: int = 64):
+        super().__init__()
+        self.pred = _nn.Sequential(
+            _nn.Linear(state_dim, 64), _nn.ReLU(),
+            _nn.Linear(64, state_dim),
+        )
+
+    def forward(self, state, next_state):
+        # Learnability filter: low variance = predictable = high reward
+        # High variance (noisy-TV) = low reward
+        next_var = next_state.var(dim=-1)
+        return _torch.exp(-next_var)
+
+DriveSystem = _DriveSystemCompat

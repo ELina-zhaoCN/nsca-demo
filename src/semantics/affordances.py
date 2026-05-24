@@ -208,3 +208,18 @@ class AffordanceDetector(nn.Module):
                 explanations.append("stable and large enough to sit on")
         
         return "; ".join(explanations) if explanations else "uncertain"
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — AffordanceExtractor(feature_dim, num_affordances)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+
+class AffordanceExtractor(_nn.Module):
+    def __init__(self, feature_dim: int = 64, num_affordances: int = 8):
+        super().__init__()
+        self.head = _nn.Linear(feature_dim, num_affordances)
+
+    def forward(self, features):
+        import torch
+        return torch.sigmoid(self.head(features))

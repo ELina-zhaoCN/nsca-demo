@@ -267,3 +267,22 @@ class IMUEncoder(nn.Module):
         
         # Global average pool
         return x.mean(dim=2)  # [B, output_dim]
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — matches test API: ProprioEncoder(input_dim, embed_dim)
+# ---------------------------------------------------------------------------
+class _ProprioEncoderCompat(nn.Module):
+    """Compatibility wrapper accepting (input_dim, embed_dim) directly."""
+    def __init__(self, input_dim: int, embed_dim: int):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 128), nn.ReLU(),
+            nn.Linear(128, embed_dim),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
+ProprioEncoder = _ProprioEncoderCompat

@@ -222,3 +222,22 @@ class AudioEncoderLite(nn.Module):
         mel = self.auditory_prior(waveform)  # [B, n_mels, T']
         features = self.encoder(mel)  # [B, output_dim, T'']
         return features.mean(dim=2)  # [B, output_dim]
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — matches test API: AudioEncoder(embed_dim)
+# ---------------------------------------------------------------------------
+class AudioEncoder(nn.Module):
+    """Simple audio encoder compatible with integration test API."""
+    def __init__(self, embed_dim: int = 64):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(1, 32, 3, stride=2, padding=1), nn.ReLU(),
+            nn.Conv2d(32, 64, 3, stride=2, padding=1), nn.ReLU(),
+            nn.AdaptiveAvgPool2d(4),
+            nn.Flatten(),
+            nn.Linear(64 * 4 * 4, embed_dim),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)

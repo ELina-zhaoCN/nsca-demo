@@ -411,3 +411,24 @@ def create_ewc_for_nsca(
     )
     
     return MemoryAwareEWC(model, config)
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — ElasticWeightConsolidation(model, dataset=None, device="cpu")
+# ---------------------------------------------------------------------------
+class _EWCCompat:
+    def __init__(self, model, dataset=None, device="cpu"):
+        self.model = model
+        self.fisher: dict = {}
+        self.optimal_params: dict = {}
+
+    def penalty(self, model=None) -> "torch.Tensor":
+        import torch
+        model = model or self.model
+        loss = torch.tensor(0.0)
+        for name, param in model.named_parameters():
+            if name in self.fisher:
+                loss = loss + (self.fisher[name] * (param - self.optimal_params[name]) ** 2).sum()
+        return loss
+
+ElasticWeightConsolidation = _EWCCompat

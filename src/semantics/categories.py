@@ -197,3 +197,20 @@ class AnimateInanimateClassifier(nn.Module):
             Animacy probability [B]
         """
         return self.classifier(features).squeeze(-1)
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — CategoryClassifier(feature_dim, num_categories)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+
+class _CategoryClassifierCompat(_nn.Module):
+    def __init__(self, feature_dim: int = 64, num_categories: int = 10):
+        super().__init__()
+        self.head = _nn.Linear(feature_dim, num_categories)
+
+    def forward(self, features):
+        import torch
+        return torch.softmax(self.head(features), dim=-1)
+
+CategoryClassifier = _CategoryClassifierCompat

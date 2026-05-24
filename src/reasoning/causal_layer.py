@@ -398,3 +398,19 @@ class CausalReasoner(nn.Module):
         
         # This is simplified - real counterfactual reasoning is more complex
         return predicted_change
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — CausalLayer(state_dim, num_variables)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+
+class CausalLayer(_nn.Module):
+    def __init__(self, state_dim: int = 64, num_variables: int = 8):
+        super().__init__()
+        self.net = _nn.Sequential(
+            _nn.Linear(state_dim, state_dim), _nn.ReLU(),
+        )
+
+    def forward(self, state):
+        return self.net(state)

@@ -241,3 +241,22 @@ class CounterfactualReasoner(nn.Module):
         responsibilities = [r / total for r in responsibilities]
         
         return responsibilities
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — CounterfactualSimulator(state_dim, action_dim)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+import torch as _torch
+
+class CounterfactualSimulator(_nn.Module):
+    def __init__(self, state_dim: int = 64, action_dim: int = 8):
+        super().__init__()
+        self.net = _nn.Sequential(
+            _nn.Linear(state_dim + action_dim, 128), _nn.ReLU(),
+            _nn.Linear(128, state_dim),
+        )
+
+    def forward(self, state, action):
+        x = _torch.cat([state, action], dim=-1)
+        return self.net(x)

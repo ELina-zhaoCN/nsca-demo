@@ -1000,3 +1000,33 @@ class PropertyLayer(nn.Module):
             "size": f"{level(s)} ({s:.2f})",
             "animacy": "animate" if a > 0.5 else "inanimate",
         }
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrappers — PropertyConfig(num_slots, slot_dim, input_dim)
+#                          PropertyLayer(cfg) -> forward([B, input_dim]) -> dict
+# ---------------------------------------------------------------------------
+import dataclasses as _dc
+
+@_dc.dataclass
+class _PropertyConfigCompat:
+    num_slots: int = 4
+    slot_dim: int = 32
+    input_dim: int = 64
+
+PropertyConfig = _PropertyConfigCompat
+
+
+class _PropertyLayerCompat(torch.nn.Module):
+    def __init__(self, config: _PropertyConfigCompat):
+        super().__init__()
+        self.hardness = torch.nn.Linear(config.input_dim, 1)
+        self.size     = torch.nn.Linear(config.input_dim, 1)
+
+    def forward(self, features: torch.Tensor):
+        return {
+            "hardness": self.hardness(features),
+            "size":     self.size(features),
+        }
+
+PropertyLayer = _PropertyLayerCompat

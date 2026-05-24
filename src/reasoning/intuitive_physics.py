@@ -615,3 +615,19 @@ class IntuitivePhysics(nn.Module):
         # Normalize to [0, 1] surprise
         surprise = 1 - torch.exp(-diff)
         return surprise
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — IntuitivePhysicsEngine(state_dim)
+# ---------------------------------------------------------------------------
+import torch.nn as _nn
+
+class IntuitivePhysicsEngine(_nn.Module):
+    def __init__(self, state_dim: int = 64):
+        super().__init__()
+        self.net = _nn.Sequential(
+            _nn.Linear(state_dim, state_dim), _nn.ReLU(),
+        )
+
+    def forward(self, state):
+        return self.net(state)

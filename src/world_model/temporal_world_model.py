@@ -306,3 +306,18 @@ class RecurrentWorldModel(nn.Module):
             self.config.dim,
             device=device,
         )
+
+
+# ---------------------------------------------------------------------------
+# Compatibility wrapper — TemporalWorldModel(obs_dim, hidden_dim)
+# ---------------------------------------------------------------------------
+class _TemporalWorldModelCompat(torch.nn.Module):
+    def __init__(self, obs_dim: int, hidden_dim: int = 128):
+        super().__init__()
+        self.rnn = torch.nn.GRU(obs_dim, hidden_dim, batch_first=False)
+
+    def forward(self, obs_seq: torch.Tensor):
+        out, _ = self.rnn(obs_seq)
+        return out
+
+TemporalWorldModel = _TemporalWorldModelCompat
