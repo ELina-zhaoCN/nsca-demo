@@ -16,3 +16,16 @@ modules:
   use_ewc: true
   ewc_lambda: 0.4
   use_llm: false
+
+# Issue #5 — Layer 4: Language Grounding
+language_grounding:
+  enabled: true
+  prop_dim: 9            # must match PropertyLayer output dimension
+  embed_dim: 64          # shared concept-percept embedding space
+  top_k: 3               # concepts returned per percept query
+
+  # Optional LLM integration (gracefully disabled when api_key is absent)
+  llm_integration:
+    enabled: false        # set true to enable; requires OPENAI_API_KEY env var
+    model: "gpt-3.5-turbo"
+    api_key: ""           # leave blank — loaded from OPENAI_API_KEY env var
