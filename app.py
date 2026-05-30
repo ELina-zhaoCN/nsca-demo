@@ -695,9 +695,9 @@ with tabs[3]:
         ])  # [C, prop_dim]
 
         fig, ax = plt.subplots(figsize=(11, 6))
-        v = max(abs(heat.min()), abs(heat.max())) or 1.0
-        im = ax.imshow(heat, aspect="auto", cmap="RdYlBu_r",
-                       vmin=-v, vmax=v, interpolation="nearest")
+        heat_abs = np.abs(heat)   # show association strength, not direction
+        im = ax.imshow(heat_abs, aspect="auto", cmap="YlOrBr",
+                       vmin=0, vmax=1.0, interpolation="nearest")
         # white grid lines between cells
         ax.set_xticks(np.arange(-0.5, heat.shape[1], 1), minor=True)
         ax.set_yticks(np.arange(-0.5, heat.shape[0], 1), minor=True)
@@ -705,7 +705,7 @@ with tabs[3]:
         ax.tick_params(which="minor", length=0)
         ax.set_xticks(range(len(_PROPERTY_NAMES))); ax.set_xticklabels(_PROPERTY_NAMES, rotation=35, ha="right", fontsize=8)
         ax.set_yticks(range(len(grounder.CONCEPTS))); ax.set_yticklabels(grounder.CONCEPTS, fontsize=9)
-        ax.set_title("Concept–Property Association  (blue = strong positive, red = negative, white = neutral)", fontweight="bold")
+        ax.set_title("Concept–Property Association  (dark orange = strong, light yellow = weak/none)", fontweight="bold")
         plt.colorbar(im, ax=ax, fraction=0.03, pad=0.02)
         fig.tight_layout(); st.pyplot(fig); plt.close(fig)
 
