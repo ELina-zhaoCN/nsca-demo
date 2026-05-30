@@ -692,15 +692,8 @@ with tabs[3]:
         heat = (all_embs @ prop_eyes.T).numpy()   # [C, prop_dim]
 
         fig, ax = plt.subplots(figsize=(11, 4))
-        v = max(abs(heat.min()), abs(heat.max()))
-        im = ax.imshow(heat, aspect="auto", cmap="RdBu_r",
-                       vmin=-v, vmax=v, interpolation="nearest")
-        # annotate each cell with its value
-        for ci in range(heat.shape[0]):
-            for pi in range(heat.shape[1]):
-                val = heat[ci, pi]
-                ax.text(pi, ci, f"{val:.2f}", ha="center", va="center",
-                        fontsize=6, color="white" if abs(val) > v * 0.4 else "#555")
+        im = ax.imshow(heat, aspect="auto", cmap="Blues",
+                       vmin=heat.min(), vmax=heat.max(), interpolation="nearest")
         ax.set_xticks(range(len(_PROPERTY_NAMES))); ax.set_xticklabels(_PROPERTY_NAMES, rotation=35, ha="right", fontsize=8)
         ax.set_yticks(range(len(grounder.CONCEPTS))); ax.set_yticklabels(grounder.CONCEPTS, fontsize=9)
         ax.set_title("Concept–Property Heatmap  (blue = high positive association)", fontweight="bold")
