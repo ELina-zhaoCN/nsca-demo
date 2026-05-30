@@ -691,7 +691,7 @@ with tabs[3]:
         )
         heat = (all_embs @ prop_eyes.T).numpy()   # [C, prop_dim]
 
-        fig, ax = plt.subplots(figsize=(11, 4))
+        fig, ax = plt.subplots(figsize=(11, 6))
         v = max(abs(heat.min()), abs(heat.max()))
         im = ax.imshow(heat, aspect="auto", cmap="RdBu_r",
                        vmin=-v, vmax=v, interpolation="nearest")
