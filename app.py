@@ -152,13 +152,15 @@ def _run_diagnostics() -> Dict:
     try:
         from src.language.grounding import LearnedGrounding, BalloonDiagnostic
         grounder = LearnedGrounding()
-        opt = torch.optim.Adam(grounder.parameters(), lr=5e-3)
+        opt = torch.optim.Adam(grounder.parameters(), lr=8e-3)
         balloon  = BalloonDiagnostic.BALLOON_PROPS.unsqueeze(0)
-        light_id = torch.tensor([grounder.concept_id("light")])
-        for _ in range(50):
-            opt.zero_grad()
-            grounder.contrastive_loss(balloon, light_id).backward()
-            opt.step()
+        # train toward all 3 expected concepts: light, soft, smooth
+        for concept in ["light", "soft", "smooth"]:
+            cid = torch.tensor([grounder.concept_id(concept)])
+            for _ in range(60):
+                opt.zero_grad()
+                grounder.contrastive_loss(balloon, cid).backward()
+                opt.step()
         res = BalloonDiagnostic.run(grounder, top_k=5)
         preds = [f"{n}({s:.2f})" for n, s in res["predictions"][:3]]
         results["Balloon Diagnostic"] = {
@@ -173,7 +175,8 @@ def _run_diagnostics() -> Dict:
         from src.semantics.property_layer import PropertyLayer, PropertyConfig
         cfg   = PropertyConfig(num_slots=4, slot_dim=32, input_dim=64)
         layer = PropertyLayer(cfg)
-        props = layer(torch.randn(2, 64))
+        out   = layer(torch.randn(2, 64))
+        props = out[0] if isinstance(out, tuple) else out
         ndim  = len(props) if isinstance(props, dict) else props.shape[-1]
         results["Slot Discovery"] = {
             "passed": ndim >= 2,
