@@ -1024,10 +1024,7 @@ PropertyConfig = _PropertyConfigCompat
 class _PropertyLayerCompat(torch.nn.Module):
     def __init__(self, config: _PropertyConfigCompat):
         super().__init__()
-        in_dim = getattr(config, 'world_state_dim', getattr(config, 'input_dim', 64))
-        # If world_state_dim matches the temporal model dim (512), use that
-        if hasattr(config, 'hidden_dim') and config.hidden_dim > in_dim:
-            in_dim = config.hidden_dim
+        in_dim = config.input_dim  # use input_dim directly from config
         self.hardness = torch.nn.Linear(in_dim, 1)
         self.size     = torch.nn.Linear(in_dim, 1)
         self.embed    = torch.nn.Linear(in_dim, in_dim)
