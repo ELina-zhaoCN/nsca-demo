@@ -475,25 +475,83 @@ with tabs[1]:
 
     # ── forward pass smoke test ───────────────────────────────────────────────
     st.markdown("---")
-    st.subheader("Forward Pass Smoke Test")
+    st.subheader("Layer-by-Layer Forward Pass")
     if st.button("▶ Run forward pass with random inputs"):
+        results = []
+        errors  = []
+
+        # Layer 0 — encoders
         try:
-            from src.checkpoint_io import load_cognitive_agent
-            agent = load_cognitive_agent(None)
-            agent.eval()
+            from src.encoders.vision_encoder import VisionEncoder
+            from src.encoders.audio_encoder import AudioEncoder
+            from src.encoders.proprio_encoder import ProprioEncoder
+            vision_enc = VisionEncoder(embed_dim=128)
+            audio_enc  = AudioEncoder(embed_dim=64)
+            proprio_enc = ProprioEncoder(input_dim=12, embed_dim=32)
             with torch.no_grad():
-                out = agent.forward(
-                    torch.randn(1, 2, 3, 64, 64),
-                    torch.randn(1, 8000),
-                    torch.randn(1, 2, 12),
-                )
-            st.success("✅ Forward pass completed — all 5 layers ran without error.")
-            cols = st.columns(2)
-            for i, (k, v) in enumerate(list(out.items())[:8]):
-                shape = tuple(v.shape) if torch.is_tensor(v) else type(v).__name__
-                cols[i % 2].code(f"{k}: {shape}")
+                z_v = vision_enc(torch.randn(1, 3, 64, 64))
+                z_a = audio_enc(torch.randn(1, 1, 64, 64))
+                z_p = proprio_enc(torch.randn(1, 12))
+            results.append(("Layer 0 — World Model", f"vision{tuple(z_v.shape)}  audio{tuple(z_a.shape)}  proprio{tuple(z_p.shape)}"))
         except Exception as e:
-            st.error(f"Forward pass error: {e}")
+            errors.append(("Layer 0", str(e)))
+
+        # Layer 1 — semantics
+        try:
+            from src.semantics.property_layer import PropertyLayer, PropertyConfig
+            from src.semantics.affordances import AffordanceExtractor
+            cfg   = PropertyConfig(num_slots=4, slot_dim=32, input_dim=64)
+            layer = PropertyLayer(cfg)
+            aff   = AffordanceExtractor(feature_dim=64, num_affordances=8)
+            with torch.no_grad():
+                props = layer(torch.randn(1, 64))
+                affs  = aff(torch.randn(1, 64))
+            results.append(("Layer 1 — Semantics", f"props={type(props).__name__}  affordances{tuple(affs.shape)}"))
+        except Exception as e:
+            errors.append(("Layer 1", str(e)))
+
+        # Layer 2 — causal
+        try:
+            from src.reasoning.causal_layer import CausalLayer
+            from src.reasoning.counterfactual import CounterfactualSimulator
+            causal = CausalLayer(state_dim=64, num_variables=8)
+            cf     = CounterfactualSimulator(state_dim=64, action_dim=8)
+            with torch.no_grad():
+                c_out = causal(torch.randn(1, 64))
+                cf_out = cf(torch.randn(1, 64), torch.randn(1, 8))
+            results.append(("Layer 2 — Causal Reasoning", f"causal={type(c_out).__name__}  counterfactual{tuple(cf_out.shape)}"))
+        except Exception as e:
+            errors.append(("Layer 2", str(e)))
+
+        # Layer 3 — motivation
+        try:
+            from src.motivation.intrinsic_reward import IntrinsicRewardModule
+            from src.motivation.drive_system import DriveSystem
+            reward_mod = IntrinsicRewardModule(state_dim=64)
+            drive      = DriveSystem(state_dim=64)
+            with torch.no_grad():
+                r  = reward_mod(torch.randn(1, 64), torch.randn(1, 64))
+                d  = drive(torch.randn(1, 64), torch.randn(1, 64))
+            results.append(("Layer 3 — Motivation", f"reward{tuple(r.shape)}  drive{tuple(d.shape)}"))
+        except Exception as e:
+            errors.append(("Layer 3", str(e)))
+
+        # Layer 4 — language
+        try:
+            from src.language.grounding import LearnedGrounding
+            grounder = LearnedGrounding()
+            with torch.no_grad():
+                preds = grounder.percept_to_language(torch.randn(9), top_k=3)
+            results.append(("Layer 4 — Language", f"top-3 concepts: {[n for n,_ in preds]}"))
+        except Exception as e:
+            errors.append(("Layer 4", str(e)))
+
+        # display
+        for layer_name, detail in results:
+            st.success(f"✅ {layer_name}")
+            st.code(detail)
+        for layer_name, err in errors:
+            st.error(f"❌ {layer_name}: {err}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
