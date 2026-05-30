@@ -274,15 +274,16 @@ class IMUEncoder(nn.Module):
 # ---------------------------------------------------------------------------
 class _ProprioEncoderCompat(nn.Module):
     """Compatibility wrapper accepting (input_dim, embed_dim) or (ProprioEncoderConfig,)."""
-    def __init__(self, input_dim_or_config, embed_dim: int = 256):
+    def __init__(self, input_dim_or_config=12, embed_dim: int = 256, *, input_dim: int = None):
         super().__init__()
-        if hasattr(input_dim_or_config, 'input_dim'):
+        if input_dim is not None:                        # keyword: ProprioEncoder(input_dim=12, embed_dim=32)
+            in_dim, out_dim = input_dim, embed_dim
+        elif hasattr(input_dim_or_config, 'input_dim'): # config object
             cfg = input_dim_or_config
             in_dim  = cfg.input_dim
             out_dim = getattr(cfg, 'output_dim', embed_dim)
-        else:
-            in_dim  = int(input_dim_or_config)
-            out_dim = embed_dim
+        else:                                            # positional int
+            in_dim, out_dim = int(input_dim_or_config), embed_dim
         self.net = nn.Sequential(
             nn.Linear(in_dim, 128), nn.ReLU(),
             nn.Linear(128, out_dim),

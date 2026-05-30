@@ -370,10 +370,13 @@ import torch.nn as _nn
 import torch as _torch
 
 class _DriveSystemCompat(_nn.Module):
-    def __init__(self, state_dim_or_config=64):
+    def __init__(self, state_dim_or_config=64, *, state_dim: int = None):
         super().__init__()
-        state_dim = getattr(state_dim_or_config, 'state_dim', None)
-        if state_dim is None:
+        if state_dim is not None:                              # keyword: DriveSystem(state_dim=64)
+            state_dim = state_dim
+        elif hasattr(state_dim_or_config, 'state_dim'):       # config object
+            state_dim = state_dim_or_config.state_dim
+        else:
             state_dim = int(state_dim_or_config)
         self.pred = _nn.Sequential(
             _nn.Linear(state_dim, 64), _nn.ReLU(),
