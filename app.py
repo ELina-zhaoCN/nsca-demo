@@ -626,7 +626,12 @@ with tabs[3]:
 
         @st.cache_resource
         def _get_grounder() -> LearnedGrounding:
-            return LearnedGrounding()
+            g = LearnedGrounding()
+            weights = _root / "src" / "language" / "grounding_weights.pt"
+            if weights.exists():
+                g.load_state_dict(torch.load(weights, map_location="cpu"))
+            g.eval()
+            return g
 
         grounder = _get_grounder()
 
