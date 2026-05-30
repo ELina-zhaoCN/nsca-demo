@@ -692,8 +692,9 @@ with tabs[3]:
         heat = (all_embs @ prop_eyes.T).numpy()   # [C, prop_dim]
 
         fig, ax = plt.subplots(figsize=(11, 4))
-        im = ax.imshow(heat, aspect="auto", cmap="Blues",
-                       vmin=heat.min(), vmax=heat.max(), interpolation="nearest")
+        v = max(abs(heat.min()), abs(heat.max()))
+        im = ax.imshow(heat, aspect="auto", cmap="RdBu_r",
+                       vmin=-v, vmax=v, interpolation="nearest")
         # white grid lines between cells
         ax.set_xticks(np.arange(-0.5, heat.shape[1], 1), minor=True)
         ax.set_yticks(np.arange(-0.5, heat.shape[0], 1), minor=True)
