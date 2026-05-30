@@ -370,16 +370,17 @@ import torch.nn as _nn
 import torch as _torch
 
 class _DriveSystemCompat(_nn.Module):
-    def __init__(self, state_dim: int = 64):
+    def __init__(self, state_dim_or_config=64):
         super().__init__()
+        state_dim = getattr(state_dim_or_config, 'state_dim', None)
+        if state_dim is None:
+            state_dim = int(state_dim_or_config)
         self.pred = _nn.Sequential(
             _nn.Linear(state_dim, 64), _nn.ReLU(),
             _nn.Linear(64, state_dim),
         )
 
     def forward(self, state, next_state):
-        # Learnability filter: low variance = predictable = high reward
-        # High variance (noisy-TV) = low reward
         next_var = next_state.var(dim=-1)
         return _torch.exp(-next_var)
 

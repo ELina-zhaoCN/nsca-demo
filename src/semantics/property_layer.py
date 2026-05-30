@@ -1013,6 +1013,10 @@ class _PropertyConfigCompat:
     num_slots: int = 4
     slot_dim: int = 32
     input_dim: int = 64
+    world_state_dim: int = 256
+    audio_dim: int = 512
+    proprio_dim: int = 512
+    hidden_dim: int = 512
 
 PropertyConfig = _PropertyConfigCompat
 
@@ -1020,13 +1024,20 @@ PropertyConfig = _PropertyConfigCompat
 class _PropertyLayerCompat(torch.nn.Module):
     def __init__(self, config: _PropertyConfigCompat):
         super().__init__()
-        self.hardness = torch.nn.Linear(config.input_dim, 1)
-        self.size     = torch.nn.Linear(config.input_dim, 1)
+        in_dim = getattr(config, 'world_state_dim', getattr(config, 'input_dim', 64))
+        # If world_state_dim matches the temporal model dim (512), use that
+        if hasattr(config, 'hidden_dim') and config.hidden_dim > in_dim:
+            in_dim = config.hidden_dim
+        self.hardness = torch.nn.Linear(in_dim, 1)
+        self.size     = torch.nn.Linear(in_dim, 1)
+        self.embed    = torch.nn.Linear(in_dim, in_dim)
 
-    def forward(self, features: torch.Tensor):
-        return {
+    def forward(self, features: torch.Tensor, *args):
+        props = {
             "hardness": self.hardness(features),
             "size":     self.size(features),
         }
+        embed = self.embed(features)
+        return props, embed
 
 PropertyLayer = _PropertyLayerCompat

@@ -273,15 +273,25 @@ class IMUEncoder(nn.Module):
 # Compatibility wrapper — matches test API: ProprioEncoder(input_dim, embed_dim)
 # ---------------------------------------------------------------------------
 class _ProprioEncoderCompat(nn.Module):
-    """Compatibility wrapper accepting (input_dim, embed_dim) directly."""
-    def __init__(self, input_dim: int, embed_dim: int):
+    """Compatibility wrapper accepting (input_dim, embed_dim) or (ProprioEncoderConfig,)."""
+    def __init__(self, input_dim_or_config, embed_dim: int = 256):
         super().__init__()
+        if hasattr(input_dim_or_config, 'input_dim'):
+            cfg = input_dim_or_config
+            in_dim  = cfg.input_dim
+            out_dim = getattr(cfg, 'output_dim', embed_dim)
+        else:
+            in_dim  = int(input_dim_or_config)
+            out_dim = embed_dim
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 128), nn.ReLU(),
-            nn.Linear(128, embed_dim),
+            nn.Linear(in_dim, 128), nn.ReLU(),
+            nn.Linear(128, out_dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.dim() == 3:
+            B, T, D = x.shape
+            return self.net(x.reshape(B * T, D)).reshape(B, T, -1)
         return self.net(x)
 
 
