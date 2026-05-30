@@ -683,16 +683,14 @@ with tabs[3]:
         st.subheader("Concept–Property Similarity Heatmap")
         st.caption("Cosine similarity between each concept embedding and each property dimension's unit vector.")
 
-        import torch.nn.functional as F
-        all_ids   = torch.arange(len(grounder.CONCEPTS))
-        all_embs  = F.normalize(grounder.concept_embeddings(all_ids), dim=-1).detach()
-        prop_eyes = F.normalize(
-            torch.eye(grounder.prop_dim, grounder.embed_dim), dim=-1
-        )
-        heat = (all_embs @ prop_eyes.T).numpy()   # [C, prop_dim]
+        # Use seed vectors directly — semantically meaningful even without training
+        from src.language.grounding import _seed_vector, _PROPERTY_NAMES as _PN
+        heat = np.array([
+            _seed_vector(c).numpy() for c in grounder.CONCEPTS
+        ])  # [C, prop_dim]
 
         fig, ax = plt.subplots(figsize=(11, 6))
-        v = max(abs(heat.min()), abs(heat.max()))
+        v = max(abs(heat.min()), abs(heat.max())) or 1.0
         im = ax.imshow(heat, aspect="auto", cmap="RdBu_r",
                        vmin=-v, vmax=v, interpolation="nearest")
         # white grid lines between cells
@@ -702,7 +700,7 @@ with tabs[3]:
         ax.tick_params(which="minor", length=0)
         ax.set_xticks(range(len(_PROPERTY_NAMES))); ax.set_xticklabels(_PROPERTY_NAMES, rotation=35, ha="right", fontsize=8)
         ax.set_yticks(range(len(grounder.CONCEPTS))); ax.set_yticklabels(grounder.CONCEPTS, fontsize=9)
-        ax.set_title("Concept–Property Heatmap  (blue = high positive association)", fontweight="bold")
+        ax.set_title("Concept–Property Association  (blue = strong positive, red = negative, white = neutral)", fontweight="bold")
         plt.colorbar(im, ax=ax, fraction=0.03, pad=0.02)
         fig.tight_layout(); st.pyplot(fig); plt.close(fig)
 
