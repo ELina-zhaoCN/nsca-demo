@@ -219,11 +219,30 @@ if not demo_counts:
 demo_counts = sorted(demo_counts)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("**Module toggles**")
-use_physics = st.sidebar.checkbox("Physics Priors",        value=True)
-use_ewc     = st.sidebar.checkbox("EWC continual learning",value=True)
-use_llm     = st.sidebar.checkbox("LLM (Layer 4)",         value=False,
-                                   help="Requires OPENAI_API_KEY env var.")
+st.sidebar.markdown("**Module Status**")
+st.sidebar.markdown(
+    """
+    <div style="font-size:0.82em; color:#8b949e; margin-bottom:4px;">
+        Active in this build:
+    </div>
+    <div style="margin-bottom:6px;">
+        <span style="background:#1f4d2e; color:#3fb950; border-radius:4px;
+                     padding:3px 10px; font-size:0.82em;">● Physics Priors ON</span>
+    </div>
+    <div style="margin-bottom:6px;">
+        <span style="background:#1f4d2e; color:#3fb950; border-radius:4px;
+                     padding:3px 10px; font-size:0.82em;">● EWC Continual Learning ON</span>
+    </div>
+    <div style="margin-bottom:6px;">
+        <span style="background:#2d2d2d; color:#6e7681; border-radius:4px;
+                     padding:3px 10px; font-size:0.82em;">○ LLM Layer 4 OFF</span>
+    </div>
+    <div style="font-size:0.75em; color:#6e7681; margin-top:4px;">
+        (requires OPENAI_API_KEY)
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 st.sidebar.markdown("---")
 st.sidebar.caption("NSCA · TECHIN 510 Final Project")
 
