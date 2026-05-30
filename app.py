@@ -694,6 +694,11 @@ with tabs[3]:
         fig, ax = plt.subplots(figsize=(11, 4))
         im = ax.imshow(heat, aspect="auto", cmap="Blues",
                        vmin=heat.min(), vmax=heat.max(), interpolation="nearest")
+        # white grid lines between cells
+        ax.set_xticks(np.arange(-0.5, heat.shape[1], 1), minor=True)
+        ax.set_yticks(np.arange(-0.5, heat.shape[0], 1), minor=True)
+        ax.grid(which="minor", color="white", linewidth=2)
+        ax.tick_params(which="minor", length=0)
         ax.set_xticks(range(len(_PROPERTY_NAMES))); ax.set_xticklabels(_PROPERTY_NAMES, rotation=35, ha="right", fontsize=8)
         ax.set_yticks(range(len(grounder.CONCEPTS))); ax.set_yticklabels(grounder.CONCEPTS, fontsize=9)
         ax.set_title("Concept–Property Heatmap  (blue = high positive association)", fontweight="bold")
