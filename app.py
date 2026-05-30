@@ -696,7 +696,7 @@ with tabs[3]:
 
         fig, ax = plt.subplots(figsize=(11, 6))
         v = max(abs(heat.min()), abs(heat.max())) or 1.0
-        im = ax.imshow(heat, aspect="auto", cmap="RdBu_r",
+        im = ax.imshow(heat, aspect="auto", cmap="RdYlBu_r",
                        vmin=-v, vmax=v, interpolation="nearest")
         # white grid lines between cells
         ax.set_xticks(np.arange(-0.5, heat.shape[1], 1), minor=True)
