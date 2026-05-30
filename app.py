@@ -692,7 +692,8 @@ with tabs[3]:
         heat = (all_embs @ prop_eyes.T).numpy()   # [C, prop_dim]
 
         fig, ax = plt.subplots(figsize=(11, 4))
-        im = ax.imshow(heat, aspect="auto", cmap="RdYlBu_r", vmin=-1, vmax=1)
+        v = max(abs(heat.min()), abs(heat.max()))   # symmetric around 0
+        im = ax.imshow(heat, aspect="auto", cmap="coolwarm", vmin=-v, vmax=v)
         ax.set_xticks(range(len(_PROPERTY_NAMES))); ax.set_xticklabels(_PROPERTY_NAMES, rotation=35, ha="right", fontsize=8)
         ax.set_yticks(range(len(grounder.CONCEPTS))); ax.set_yticklabels(grounder.CONCEPTS, fontsize=9)
         ax.set_title("Concept–Property Heatmap  (blue = high positive association)", fontweight="bold")
