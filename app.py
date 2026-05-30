@@ -80,12 +80,12 @@ def _sim_curve(num_demos: int, condition: str, seed: int,
     base_asymptote = 0.38 + 0.046 * log_n     # N=1→42%, N=20→58%
     if condition == "nsca":
         asymptote = np.clip(base_asymptote + physics_w * 0.08
-                            + rng.normal(0, 0.02), 0.25, 0.93)
-        init = np.clip(0.18 + physics_w * 0.07 + rng.normal(0, 0.02), 0.05, 0.42)
+                            + rng.normal(0, 0.06), 0.25, 0.93)
+        init = np.clip(0.18 + physics_w * 0.07 + rng.normal(0, 0.04), 0.05, 0.42)
         lr   = (0.010 + curiosity_scale * 0.004) * log_n
     else:
-        asymptote = np.clip(base_asymptote + rng.normal(0, 0.02), 0.20, 0.90)
-        init = np.clip(0.03 + rng.normal(0, 0.015), 0.01, 0.10)
+        asymptote = np.clip(base_asymptote + rng.normal(0, 0.06), 0.20, 0.90)
+        init = np.clip(0.03 + rng.normal(0, 0.03), 0.01, 0.10)
         lr   = 0.008 * log_n
 
     curve = []
@@ -428,15 +428,21 @@ with tabs[1]:
             arrowprops=dict(arrowstyle="-|>", color="#58a6ff", lw=1.8),
         )
 
-    # input labels
-    inputs = [("Vision\n(64×64 RGB)", 1.8), ("Audio\n(mel-spec)", 5.5), ("Proprio\n(joint state)", 9.2)]
-    for lbl, ix in inputs:
-        ax.text(ix, ys[0], lbl, ha="center", va="center", fontsize=7.5, color="#8b949e")
-        ax.annotate(
-            "", xy=(cx - box_w / 2 + 0.1, ys[0]),
-            xytext=(ix + (1.2 if ix < cx else -1.2), ys[0]),
-            arrowprops=dict(arrowstyle="-|>", color="#8b949e", lw=1.2),
-        )
+    # input labels — Vision from left, Audio from below, Proprio from right
+    ax.text(1.2, ys[0], "Vision\n(64×64 RGB)", ha="center", va="center",
+            fontsize=7.5, color="#8b949e")
+    ax.annotate("", xy=(cx - box_w / 2, ys[0]), xytext=(2.0, ys[0]),
+                arrowprops=dict(arrowstyle="-|>", color="#8b949e", lw=1.2))
+
+    ax.text(cx, -0.15, "Audio\n(mel-spec)", ha="center", va="center",
+            fontsize=7.5, color="#8b949e")
+    ax.annotate("", xy=(cx, ys[0] - box_h / 2), xytext=(cx, 0.18),
+                arrowprops=dict(arrowstyle="-|>", color="#8b949e", lw=1.2))
+
+    ax.text(9.8, ys[0], "Proprio\n(joint state)", ha="center", va="center",
+            fontsize=7.5, color="#8b949e")
+    ax.annotate("", xy=(cx + box_w / 2, ys[0]), xytext=(9.0, ys[0]),
+                arrowprops=dict(arrowstyle="-|>", color="#8b949e", lw=1.2))
 
     # output label
     ax.text(9.5, ys[4], "Language\nAnswer", ha="center", va="center", fontsize=7.5, color="#8b949e")
